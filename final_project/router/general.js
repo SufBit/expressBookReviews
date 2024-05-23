@@ -13,11 +13,11 @@ public_users.post("/register", (req,res) => {
     return res.status(400).json({error: 'Username, password required'})
    }
    
-   if (users.hasOwnProperty(username)){
+   if (isValid(username)){
     return res.status(400).json({ error: 'Username already exists' });
    }
 
-   users[username] = password;
+   users.push({ username, password });
 
    return res.status(200).json({message: 'Username successful'});
 });
