@@ -56,25 +56,31 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     return res.status(401).json({error: "Book not found"});
   }
 
-   books[ISBN].reviews = {
-    username:username,
-    review: review,
-   };
+  books[ISBN].reviews[username] = review;
    return res.status(200).json({ message: "Review added/updated successfully", reviews: books[ISBN].reviews});
 });
 
 regd_users.delete("/auth/review/:isbn", async (req, res) => {
     //*Write your code here
+
+    const username = req.session.authorization.username;
+    const ISBN = req.params.isbn;
+    console.log("Del:", username);
+    if (!books[ISBN]) {
+        return res.status(401).json({ error: "Book not found" });
+    }
+
+    if (books[ISBN].reviews && books[ISBN].reviews[username]) {
+        // Delete the review for the given username
+        delete books[ISBN].reviews[username];
+        // Respond with a success message and the updated reviews
+        return res.status(200).json({ message: "Review deleted successfully", reviews: books[ISBN].reviews });
+      } else {
+        // Respond with an error message if the review doesn't exist
+        return res.status(404).json({ error: "Review not found for this user" });
+      }
  
- const isbn = req.params.isbn
- const username = req.session.authorization.username
- if (books[isbn]) {
-     let book = await books[isbn]
-     delete book.reviews[username]
-     return res.status(200).send('Review successfully deleted')
- } else {
-     return res.status(404).json({message: `ISBN ${isbn} not found`})
- }
+
  });
 
 
